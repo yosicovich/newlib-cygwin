@@ -189,6 +189,15 @@ _DEFUN(_cleanup_r, (ptr),
   cleanup_func = _fclose_r;
 #endif
 #endif
+#ifdef _REENT_SMALL
+  /*
+   * If _REENT_SMALL is used then std streams are not linked
+   * to _iobs so we have to cleanup them directly.
+   */
+  (*cleanup_func) (ptr, ptr->_stdin);
+  (*cleanup_func) (ptr, ptr->_stdout);
+  (*cleanup_func) (ptr, ptr->_stderr);
+#endif
   _CAST_VOID _fwalk_reent (ptr, cleanup_func);
 }
 
