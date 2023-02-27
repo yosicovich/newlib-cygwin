@@ -398,7 +398,14 @@ case "${host}" in
 	sys_dir=a29khif
 	signal_dir=
 	;;
-  arm*-*-*)
+  arm-*-yos*)
+	sys_dir=yos
+    newlib_cflags="${newlib_cflags} -D__DYNAMIC_REENT__ -D_STDIO_DONT_CLOSE_PER_REENT_STD_STREAMS"
+	if [ "x${newlib_may_supply_syscalls}" = "xno" ] ; then
+	  have_crt0="no"
+	fi
+	;;
+  arm-*-*)
 	sys_dir=arm
 	if [ "x${newlib_may_supply_syscalls}" = "xno" ] ; then
 	  have_crt0="no"

@@ -81,6 +81,18 @@ RDIMON_OBJS	= $(patsubst %,rdimon-%,$(RDPMON_OBJS))
 RDIMON_SCRIPTS	= rdimon.specs aprofile-validation.specs aprofile-ve.specs
 RDIMON_INSTALL	= install-rdimon
 
+YOS_CRT0	= yos-crt0.o 
+YOS_BSP     = libgloss-yos.a
+YOS_OBJS	= yos-syscalls.o
+YOS_SCRIPTS	= yos-debug.ld lpc17xx-yos.ld lpc1768-yos.ld lpc1766-yos.ld lpc17xx-yos-prod.ld lpc1768-yos-prod.ld lpc1766-yos-prod.ld yos.specs
+YOS_INSTALL	= install-yos
+
+BOOT_CRT0   = boot-crt0.o
+BOOT_BSP    = libgloss-boot.a
+BOOT_OBJS   = boot-syscalls.o
+BOOT_SCRIPTS= boot-debug.ld lpc17xx-boot.ld lpc17xx-boot-16k.ld lpc17xx-boot-32k.ld boot.specs
+BOOT_INSTALL= install-boot
+
 CFLAGS		= -g
 
 # Here is all of the eval board stuff
@@ -100,7 +112,7 @@ INCLUDES += `if [ -d ${objroot}/newlib ]; then echo -I$(srcroot)/newlib/libc/mac
 # build a test program for each target board. Just trying to get
 # it to link is a good test, so we ignore all the errors for now.
 #
-all: ${CRT0} ${LINUX_CRT0} ${LINUX_BSP} ${REDBOOT_CRT0} ${REDBOOT_OBJS} ${RDPMON_CRT0} ${RDPMON_BSP} ${RDIMON_CRT0} ${RDIMON_BSP}
+all: ${CRT0} ${LINUX_CRT0} ${LINUX_BSP} ${REDBOOT_CRT0} ${REDBOOT_OBJS} ${RDPMON_CRT0} ${RDPMON_BSP} ${RDIMON_CRT0} ${RDIMON_BSP} ${YOS_CRT0} ${YOS_BSP} ${BOOT_CRT0} ${BOOT_BSP}
 	@rootpre=`pwd`/; export rootpre; \
 	srcrootpre=`cd $(srcdir); pwd`/; export srcrootpre; \
 	for dir in .. ${SUBDIRS}; do \
@@ -161,6 +173,14 @@ $(RDIMON_BSP): $(RDIMON_OBJS)
 	${AR} ${ARFLAGS} $@ $^
 	${RANLIB} $@
 
+$(YOS_BSP): $(YOS_OBJS)
+	${AR} ${ARFLAGS} $@ $^
+	${RANLIB} $@
+
+$(BOOT_BSP): $(BOOT_OBJS)
+	${AR} ${ARFLAGS} $@ $^
+	${RANLIB} $@
+
 clean mostlyclean:
 	rm -f a.out core *.i *.o *-test *.srec *.dis *.x $(SIM_BSP) $(IQ80310_BSP)
 	@rootpre=`pwd`/; export rootpre; \
@@ -177,7 +197,7 @@ distclean maintainer-clean realclean: clean
 	rm -f Makefile config.status *~
 
 .PHONY: install info install-info clean-info
-install: ${CRT0_INSTALL} ${LINUX_INSTALL} ${REDBOOT_INSTALL} ${RDPMON_INSTALL} ${RDIMON_INSTALL} ${IQ80310_INSTALL}  ${PID_INSTALL} ${NANO_INSTALL}
+install: ${CRT0_INSTALL} ${LINUX_INSTALL} ${REDBOOT_INSTALL} ${RDPMON_INSTALL} ${RDIMON_INSTALL} ${IQ80310_INSTALL}  ${PID_INSTALL} ${NANO_INSTALL} ${YOS_INSTALL} ${BOOT_INSTALL}
 	@rootpre=`pwd`/; export rootpre; \
 	srcrootpre=`cd $(srcdir); pwd`/; export srcrootpre; \
 	for dir in .. ${SUBDIRS}; do \
@@ -216,6 +236,14 @@ install-pid:
 
 install-iq80310:
 	set -e; for x in ${IQ80310_SCRIPTS}; do ${INSTALL_DATA} ${srcdir}/${objtype}$$x $(DESTDIR)${tooldir}/lib${MULTISUBDIR}/$$x; done
+
+install-yos:
+	set -e; for x in ${YOS_CRT0} ${YOS_BSP}; do ${INSTALL_DATA} $$x $(DESTDIR)${tooldir}/lib${MULTISUBDIR}/$$x; done
+	set -e; for x in ${YOS_SCRIPTS}; do ${INSTALL_DATA} ${srcdir}/${objtype}$$x $(DESTDIR)${tooldir}/lib${MULTISUBDIR}/$$x; done
+
+install-boot:
+	set -e; for x in ${BOOT_CRT0} ${BOOT_BSP}; do ${INSTALL_DATA} $$x $(DESTDIR)${tooldir}/lib${MULTISUBDIR}/$$x; done
+	set -e; for x in ${BOOT_SCRIPTS}; do ${INSTALL_DATA} ${srcdir}/${objtype}$$x $(DESTDIR)${tooldir}/lib${MULTISUBDIR}/$$x; done
 
 
 doc:

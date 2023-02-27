@@ -1,0 +1,8 @@
+%rename link                old_link
+
+*link:
+%(old_link) -lgloss-boot
+
+*startfile:
+crti%O%s crtbegin%O%s %{!pg:boot-crt0%O%s} %{pg:boot-crt0%O%s}
+
