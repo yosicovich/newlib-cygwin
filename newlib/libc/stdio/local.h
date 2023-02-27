@@ -35,11 +35,11 @@
 /* The following define determines if the per-reent stdin, stdout and stderr
    streams are closed during _reclaim_reent().  The stdin, stdout and stderr
    streams are initialized to use file descriptors 0, 1 and 2 respectively.  In
-   case _STDIO_CLOSE_PER_REENT_STD_STREAMS is defined these file descriptors
-   will be closed via close() provided the owner of the reent structure
+   case _STDIO_DONT_CLOSE_PER_REENT_STD_STREAMS is defined these file descriptors
+   will not be closed via close() provided the owner of the reent structure
    triggerd the on demand reent initilization, see CHECK_INIT(). */
-#if !defined(__rtems__) && !defined(__tirtos__)
-#define _STDIO_CLOSE_PER_REENT_STD_STREAMS
+#if defined(__rtems__) || defined(__tirtos__)
+#define _STDIO_DONT_CLOSE_PER_REENT_STD_STREAMS
 #endif
 
 /* The following macros are supposed to replace calls to _flockfile/_funlockfile

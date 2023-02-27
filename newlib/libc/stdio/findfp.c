@@ -66,11 +66,11 @@ _DEFUN(std, (ptr, flags, file, data),
   ptr->_flags |= __SL64;
 #endif /* __LARGE64_FILES */
   ptr->_seek = __sseek;
-#ifdef _STDIO_CLOSE_PER_REENT_STD_STREAMS
-  ptr->_close = __sclose;
-#else /* _STDIO_CLOSE_STD_STREAMS */
+#ifdef _STDIO_DONT_CLOSE_PER_REENT_STD_STREAMS
   ptr->_close = NULL;
-#endif /* _STDIO_CLOSE_STD_STREAMS */
+#else /* _STDIO_DONT_CLOSE_PER_REENT_STD_STREAMS */
+  ptr->_close = __sclose;
+#endif /* _STDIO_DONT_CLOSE_PER_REENT_STD_STREAMS */
 #if !defined(__SINGLE_THREAD__) && !defined(_REENT_SMALL)
   __lock_init_recursive (ptr->_lock);
   /*
