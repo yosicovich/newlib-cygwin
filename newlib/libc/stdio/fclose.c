@@ -82,18 +82,20 @@ _DEFUN(_fclose_r, (rptr, fp),
   int __oldcancel;
   pthread_setcancelstate (PTHREAD_CANCEL_DISABLE, &__oldcancel);
 #endif
-  if (!(fp->_flags2 & __SNLK))
-    _flockfile (fp);
+  __sfp_lock_acquire ();
 
   if (fp->_flags == 0)		/* not open! */
     {
-      if (!(fp->_flags2 & __SNLK))
-	_funlockfile (fp);
+      __sfp_lock_release ();
 #ifdef _STDIO_WITH_THREAD_CANCELLATION_SUPPORT
       pthread_setcancelstate (__oldcancel, &__oldcancel);
 #endif
       return (0);
     }
+
+  if (!(fp->_flags2 & __SNLK))
+    _flockfile (fp);
+  __sfp_lock_release ();
 #ifdef _STDIO_BSD_SEMANTICS
   /* BSD and Glibc systems only flush streams which have been written to. */
   r = (fp->_flags & __SWR) ? __sflush_r (rptr, fp) : 0;
@@ -112,12 +114,12 @@ _DEFUN(_fclose_r, (rptr, fp),
   if (HASLB (fp))
     FREELB (rptr, fp);
   __sfp_lock_acquire ();
-  fp->_flags = 0;		/* release this FILE for reuse */
   if (!(fp->_flags2 & __SNLK))
     _funlockfile (fp);
 #ifndef __SINGLE_THREAD__
   __lock_close_recursive (fp->_lock);
 #endif
+  fp->_flags = 0;       /* release this FILE for reuse */
 
   __sfp_lock_release ();
 #ifdef _STDIO_WITH_THREAD_CANCELLATION_SUPPORT
